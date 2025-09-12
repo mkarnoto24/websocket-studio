@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas Lock Test</title>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+</head>
+<body>
+<h1>Canvas Lock Test</h1>
+<form id="loginForm">
+    <input id="email" placeholder="Email" required />
+    <input id="eventId" placeholder="Event ID" required />
+    <button type="submit">Join Canvas</button>
+</form>
+
+<div id="status"></div>
+
+<script>
+    const socket = io("http://localhost:4000");
+
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const eventId = document.getElementById("eventId").value;
+        console.log('submit');
+        socket.emit("join_canvas", { email, eventId });
+    });
+
+    socket.on("joined", (msg) => {
+        console.log("✅ joined");
+        document.getElementById("status").innerText = msg.message;
+    });
+
+    socket.on("blocked", (msg) => {
+        console.log("❌ blocked");
+        document.getElementById("status").innerText = msg.message;
+    });
+
+    // heartbeat tiap 10s
+    setInterval(() => {
+        const email = document.getElementById("email").value;
+        const eventId = document.getElementById("eventId").value;
+        if (email && eventId) {
+            socket.emit("heartbeat", { email, eventId });
+        }
+    }, 10000);
+</script>
+</body>
+</html>
