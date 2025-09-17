@@ -9,8 +9,8 @@ import { getWebById } from './db/dto/webs'
 // load env
 dotenv.config()
 // @ts-ignore
-const PORT = process.env.PORT ? Number(process.env.PORT) : 8080
-const SOCKET_URL = process.env.SOCKET_URL || `http://localhost:${PORT}`
+const PORT = process.env.PORT ? Number(process.env.PORT) : 4000
+const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`
 
 const app = express()
 const httpServer = createServer(app)
@@ -109,10 +109,10 @@ app.get('/users/:idOrEmail', async (req: Request, res: Response) => {
 })
 app.get('/url_socket.js', (req, res) => {
   res.type('application/javascript')
-  res.send(`window.ENV = { SOCKET_URL: "${SOCKET_URL}" }`)
+  res.send(`window.ENV = { APP_URL: "${APP_URL}" }`)
 })
 
 httpServer.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running at http://localhost:${PORT} and socket url ${SOCKET_URL}`)
+  console.log(`🚀 Server running at http://localhost:${PORT} and socket url ${APP_URL}`)
   
 })
