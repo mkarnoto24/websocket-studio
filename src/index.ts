@@ -10,6 +10,7 @@ import { getWebById } from '../src/db/dto/webs'
 dotenv.config()
 // @ts-ignore
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000
+const SOCKET_URL = process.env.SOCKET_URL || `http://localhost:${PORT}`
 
 const app = express()
 const httpServer = createServer(app)
@@ -98,6 +99,10 @@ app.get('/', (req: Request, res: Response) => {
     message: 'Viding Studio WebSocket',
     version: 'V1'
   })
+})
+app.get('/url_socket.js', (req, res) => {
+  res.type('application/javascript')
+  res.send(`window.ENV = { SOCKET_URL: "${SOCKET_URL}" }`)
 })
 
 httpServer.listen(PORT, () => {

@@ -14,9 +14,9 @@
 </form>
 
 <div id="status"></div>
-
+<script src="/url_socket.js"></script>
 <script>
-    const socket = io("http://localhost:4000");
+    const socket = io(window.ENV.SOCKET_URL)
 
     document.getElementById("loginForm").addEventListener("submit", (e) => {
         e.preventDefault();
