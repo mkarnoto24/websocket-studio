@@ -105,6 +105,7 @@ app.get('/url_socket.js', (req, res) => {
   res.send(`window.ENV = { SOCKET_URL: "${SOCKET_URL}" }`)
 })
 
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`)
+httpServer.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running at http://localhost:${PORT} and socket url ${SOCKET_URL}`)
+  
 })
