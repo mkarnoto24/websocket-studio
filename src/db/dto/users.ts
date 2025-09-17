@@ -1,4 +1,4 @@
-import { db } from './../../../src/utils/db_main_connection'
+import { db } from '../../utils/db_main_connection'
 import { User } from '../dal/user.interface'
 
 // Get all users

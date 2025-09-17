@@ -1,4 +1,4 @@
-import { db } from './../../../src/utils/db_main_connection'
+import { db } from '../../utils/db_main_connection'
 import { Web } from '../dal/web.interface'
 
 // Get detail web by ID

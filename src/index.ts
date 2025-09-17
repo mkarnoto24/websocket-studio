@@ -4,8 +4,8 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import dotenv from 'dotenv'
 import path from 'path'
-import { getUserById } from '../src/db/dto/users'
-import { getWebById } from '../src/db/dto/webs'
+import { getUserById } from './db/dto/users'
+import { getWebById } from './db/dto/webs'
 // load env
 dotenv.config()
 // @ts-ignore
