@@ -100,6 +100,13 @@ app.get('/', (req: Request, res: Response) => {
     version: 'V1'
   })
 })
+app.get('/users/:idOrEmail', async (req: Request, res: Response) => {
+  const user = await getUserById(req.params.idOrEmail as string)
+  res.json({
+    message: 'Success',
+    data: user
+  })
+})
 app.get('/url_socket.js', (req, res) => {
   res.type('application/javascript')
   res.send(`window.ENV = { SOCKET_URL: "${SOCKET_URL}" }`)

@@ -9,7 +9,7 @@ export async function getAllUsers(): Promise<User[]> {
 
 // Get detail user by ID
 export async function getUserById(idOrEmail: string | number): Promise<User | null> {
-  const [rows] = await db.query('SELECT * FROM users WHERE id = ? OR email = ? LIMIT 1', [
+  const [rows] = await db.query('SELECT id,name,email,tenant_id,created_at,updated_at FROM users WHERE id = ? OR email = ? LIMIT 1', [
     idOrEmail,
     idOrEmail
   ])
