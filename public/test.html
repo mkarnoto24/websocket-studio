@@ -9,14 +9,14 @@
 <h1>Canvas Lock Test</h1>
 <form id="loginForm">
     <input id="email" placeholder="Email" required />
-    <input id="eventId" placeholder="Event ID" required />
+    <input id="eventId" placeholder="Web ID" required />
     <button type="submit">Join Canvas</button>
 </form>
 
 <div id="status"></div>
 
 <script>
-    const socket = io("https://websocket-studio-production.up.railway.app");
+    const socket = io("http://localhost:4000");
 
     document.getElementById("loginForm").addEventListener("submit", (e) => {
         e.preventDefault();
@@ -33,6 +33,9 @@
 
     socket.on("blocked", (msg) => {
         console.log("❌ blocked");
+        document.getElementById("status").innerText = msg.message;
+    });
+    socket.on("forbidden", (msg) => {
         document.getElementById("status").innerText = msg.message;
     });
 

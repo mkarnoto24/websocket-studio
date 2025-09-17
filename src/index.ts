@@ -4,6 +4,8 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import dotenv from 'dotenv'
 import path from 'path'
+import { getUserById } from '../src/db/dto/users'
+import { getWebById } from '../src/db/dto/webs'
 // load env
 dotenv.config()
 // @ts-ignore
@@ -22,8 +24,34 @@ const eventLocks = new Map<string, { email: string; socketId: string; lastActive
 io.on('connection', (socket) => {
   console.log('✅ user connected:', socket.id)
 
-  socket.on('join_canvas', ({ email, eventId }) => {
+  socket.on('join_canvas', async ({ email, eventId }) => {
     const now = Date.now()
+
+    const user = await getUserById(email)
+    const web = await getWebById(eventId)
+    if (!user) {
+      socket.emit('forbidden', {
+        message: 'User Not Found',
+        status: 'forbidden'
+      })
+      return
+    }
+    if (!web) {
+      socket.emit('forbidden', {
+        message: 'ID Not Found',
+        status: 'forbidden'
+      })
+      return
+    }
+
+    if(user.tenant_id !== web.tenant_id){
+      socket.emit('forbidden', {
+        message: 'ID or User Not Found',
+        status: 'forbidden'
+      })
+      return
+    }
+
     const existing = eventLocks.get(eventId)
 
     if (existing && now - existing.lastActive < LOCK_TIMEOUT && existing.socketId !== socket.id) {
@@ -66,7 +94,10 @@ app.use(express.static(path.join(__dirname, '../public')))
 
 // Routes
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello from studio viding')
+  res.json({
+    message: 'Viding Studio WebSocket',
+    version: 'V1'
+  })
 })
 
 httpServer.listen(PORT, () => {
