@@ -9,7 +9,7 @@ import { getWebById } from './db/dto/webs'
 // load env
 dotenv.config()
 // @ts-ignore
-const PORT = process.env.PORT ? Number(process.env.PORT) : 4000
+const PORT = process.env.PORT ? Number(process.env.PORT) : 8080
 const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`
 
 const app = express()
