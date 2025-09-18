@@ -16,7 +16,10 @@
 <div id="status"></div>
 <script src="/url_socket.js"></script>
 <script>
-    const socket = io(window.ENV.SOCKET_URL)
+    const socket = io(window.ENV.APP_URL,{
+        path: '/ws',
+        transports: ["websocket"]
+    })
 
     document.getElementById("loginForm").addEventListener("submit", (e) => {
         e.preventDefault();
