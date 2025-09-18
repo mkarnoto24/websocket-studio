@@ -15,6 +15,7 @@ const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`
 const app = express()
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
+  path: '/ws',
   cors: { origin: '*' }
 })
 
