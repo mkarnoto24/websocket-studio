@@ -1,56 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Canvas Lock Test</title>
-    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Canvas Lock Test</title>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
 </head>
 <body>
-<h1>Canvas Lock Test</h1>
-<form id="loginForm">
+  <h1>Canvas Lock Test</h1>
+  <form id="loginForm">
     <input id="email" placeholder="Email" required />
     <input id="eventId" placeholder="Web ID" required />
     <button type="submit">Join Canvas</button>
-</form>
+  </form>
 
-<div id="status"></div>
-<script src="/url_socket.js"></script>
-<script>
-    const socket = io(window.ENV.APP_URL,{
-        path: '/ws',
-        transports: ["websocket"]
-    })
+  <div id="status" style="margin-top:20px;font-size:18px;"></div>
 
-    document.getElementById("loginForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const email = document.getElementById("email").value;
-        const eventId = document.getElementById("eventId").value;
-        console.log('submit');
-        socket.emit("join_canvas", { email, eventId });
+  <script src="/url_socket.js"></script>
+  <script>
+    // Setup socket connection
+    const socket = io(window.ENV.APP_URL, {
+      path: '/ws',
+      transports: ['websocket']
     });
 
-    
+    let lastEmail = null;
+    let lastEventId = null;
+    let isBlocked = false;
+
+    // ==================== CONNECTION STATUS ====================
+    socket.on("connect", () => {
+      console.log("✅ CONNECTED - Socket ID:", socket.id);
+      setStatus("Connected to WebSocket Server", "green");
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("❌ DISCONNECTED - Reason:", reason);
+      setStatus(`Disconnected: ${reason}`, "gray");
+    });
+
+    socket.on("connect_error", (error) => {
+      console.log("🚨 CONNECTION ERROR:", error);
+      setStatus(`Connection Error: ${error.message}`, "red");
+    });
+
+    // ==================== FORM JOIN ====================
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const eventId = document.getElementById("eventId").value.trim();
+      if (!email || !eventId) return;
+
+      lastEmail = email;
+      lastEventId = eventId;
+
+      console.log(`🟢 Request join canvas: ${eventId} as ${email}`);
+      socket.emit("join_canvas", { email, eventId });
+      setStatus("Joining canvas...", "blue");
+    });
+
+    // ==================== SERVER RESPONSES ====================
     socket.on("joined", (msg) => {
-        console.log("✅ joined");
-        document.getElementById("status").innerText = msg.message;
+      console.log("✅ joined", msg);
+      setStatus(msg.message, "green");
+      isBlocked = false;
     });
 
     socket.on("blocked", (msg) => {
-        console.log("❌ blocked");
-        document.getElementById("status").innerText = msg.message;
-    });
-    socket.on("forbidden", (msg) => {
-        document.getElementById("status").innerText = msg.message;
+      console.log("❌ blocked", msg);
+      setStatus(msg.message, "orange");
+      isBlocked = true;
     });
 
-    // heartbeat tiap 10s
+    socket.on("forbidden", (msg) => {
+      console.log("⛔ forbidden", msg);
+      setStatus(msg.message, "red");
+    });
+
+    // 🔓 auto unlock → coba join ulang
+    socket.on("unlock", (data) => {
+      console.log("🔓 unlock received for event:", data.event_id);
+      if (isBlocked && lastEventId === data.event_id) {
+        setStatus("Lock released! Trying to rejoin...", "blue");
+        setTimeout(() => {
+          socket.emit("join_canvas", { email: lastEmail, eventId: lastEventId });
+        }, 1000);
+      }
+    });
+
+    // ==================== HEARTBEAT ====================
     setInterval(() => {
-        const email = document.getElementById("email").value;
-        const eventId = document.getElementById("eventId").value;
-        if (email && eventId) {
-            socket.emit("heartbeat", { email, eventId });
-        }
+      if (lastEmail && lastEventId && !isBlocked) {
+        socket.emit("heartbeat", { email: lastEmail, eventId: lastEventId });
+        console.log(`❤️ Heartbeat sent for ${lastEventId}`);
+      }
     }, 10000);
-</script>
+
+    // ==================== HELPER ====================
+    function setStatus(message, color = "black") {
+      const el = document.getElementById("status");
+      el.innerText = message;
+      el.style.color = color;
+    }
+  </script>
 </body>
 </html>
