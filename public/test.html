@@ -29,6 +29,7 @@
         socket.emit("join_canvas", { email, eventId });
     });
 
+    
     socket.on("joined", (msg) => {
         console.log("✅ joined");
         document.getElementById("status").innerText = msg.message;
